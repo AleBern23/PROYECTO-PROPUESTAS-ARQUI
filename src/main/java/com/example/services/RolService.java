@@ -8,10 +8,11 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -19,7 +20,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class RolService {
 
-    @PersistenceContext(unitName = "CiudadanosPU")
+    @PersistenceContext(unitName = "RolesPU")
     EntityManager entityManager;
 
     @PostConstruct
@@ -32,9 +33,9 @@ public class RolService {
     }
 
     @POST
-    @Path("/crear")
+    @Path("/registrar")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response crearRol(Rol rol) {
+    public Response registrarRol(Rol rol) {
         try {
             entityManager.getTransaction().begin();
             entityManager.persist(rol);
@@ -54,9 +55,9 @@ public class RolService {
     }
 
     @PUT
-    @Path("/modificar")
+    @Path("/actualizar")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response modificarRol(Rol rol) {
+    public Response actualizarRol(Rol rol) {
         try {
             entityManager.getTransaction().begin();
             entityManager.merge(rol);
@@ -75,10 +76,9 @@ public class RolService {
     }
 
     @DELETE
-    @Path("/eliminar")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response eliminarRol(Rol rol) {
-        Rol foundRol = entityManager.find(Rol.class, rol.getId());
+    @Path("/eliminar/{id}")
+    public Response eliminarRol(@PathParam("id") Long id) {
+        Rol foundRol = entityManager.find(Rol.class, id);
         if (foundRol != null) {
             try {
                 entityManager.getTransaction().begin();
@@ -89,51 +89,28 @@ public class RolService {
                 if (entityManager.getTransaction().isActive()) {
                     entityManager.getTransaction().rollback();
                 }
-                foundRol = null;
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error eliminando el rol")
+                        .build();
             } finally {
                 entityManager.clear();
                 entityManager.close();
             }
-            return Response.status(200).header("Access-Control-Allow-Origin", "*").entity(foundRol).build();
+            return Response.status(200).header("Access-Control-Allow-Origin", "*")
+                    .entity("Rol eliminado exitosamente").build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("Rol not found").build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Rol no encontrado").build();
         }
     }
 
     @GET
-    @Path("/consultar")
+    @Path("/consultar/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response consultarRol(Rol rol) {
-        Rol rolConsulta = entityManager.find(Rol.class, rol.getId());
+    public Response consultarRol(@PathParam("id") Long id) {
+        Rol rolConsulta = entityManager.find(Rol.class, id);
         if (rolConsulta != null) {
             return Response.status(200).header("Access-Control-Allow-Origin", "*").entity(rolConsulta).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("Rol not found").build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Rol no encontrado").build();
         }
-    }
-
-    @POST
-    @Path("/reiniciarContador")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response reiniciarContador() {
-        try {
-            entityManager.getTransaction().begin();
-            // Para H2
-            entityManager.createNativeQuery("TRUNCATE TABLE roles").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE roles ALTER COLUMN id RESTART WITH 0").executeUpdate();
-            // Para Derby
-            // entityManager.createNativeQuery("ALTER TABLE roles ALTER COLUMN id RESTART WITH 1").executeUpdate();
-            entityManager.getTransaction().commit();
-        } catch (Throwable t) {
-            t.printStackTrace();
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error reiniciando el contador").build();
-        } finally {
-            entityManager.clear();
-            entityManager.close();
-        }
-        return Response.status(200).header("Access-Control-Allow-Origin", "*").entity("Contador reiniciado").build();
     }
 }
