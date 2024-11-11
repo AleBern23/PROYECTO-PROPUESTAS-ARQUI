@@ -33,9 +33,11 @@ public class Ciudadano implements Serializable {
 
     private boolean habilitado;
 
+    private String password;
+
     public Ciudadano() {}
 
-    public Ciudadano(String nombre, String correo, String telefono, String direccion, Date fechaNacimiento, List<Rol> roles, boolean habilitado) {
+    public Ciudadano(String nombre, String correo, String telefono, String direccion, Date fechaNacimiento, List<Rol> roles, boolean habilitado, String password) {
         this.nombre = nombre;
         this.correo = correo;
         this.telefono = telefono;
@@ -43,6 +45,7 @@ public class Ciudadano implements Serializable {
         this.fechaNacimiento = fechaNacimiento;
         this.roles = roles;
         this.habilitado = habilitado;
+        this.password = password;
     }
 
     // Getters and Setters
@@ -108,5 +111,13 @@ public class Ciudadano implements Serializable {
 
     public void setHabilitado(boolean habilitado) {
         this.habilitado = habilitado;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
