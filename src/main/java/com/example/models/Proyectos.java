@@ -19,6 +19,7 @@ public class Proyectos {
     private Double presupuesto;
     private Integer numeroDeCiudadanosBeneficiados;
     private String impacto;
+    private Integer votos = 0; // Nuevo campo para almacenar el número de votos
 
     @ElementCollection
     @CollectionTable(name = "aspectos_asociados", joinColumns = @JoinColumn(name = "proyecto_id"))
@@ -105,6 +106,18 @@ public class Proyectos {
 
     public void setImpacto(String impacto) {
         this.impacto = impacto;
+    }
+
+    public Integer getVotos() {
+        return votos;
+    }
+
+    public void setVotos(Integer votos) {
+        this.votos = votos;
+    }
+
+    public void incrementarVotos() {
+        this.votos++;
     }
 
     public List<String> getAspectosAsociados() {
